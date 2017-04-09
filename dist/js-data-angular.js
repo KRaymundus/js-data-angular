@@ -73,14 +73,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	var DSHttpAdapter = __webpack_require__(2);
 	var angular = __webpack_require__(4);
 	
-	var DSUtils = JSData.DSUtils;
-	var DSErrors = JSData.DSErrors;
-	var get = DSUtils.get;
-	var isString = DSUtils.isString;
-	var isNumber = DSUtils.isNumber;
-	var isObject = DSUtils.isObject;
-	var set = DSUtils.set;
-	var resolveId = DSUtils.resolveId;
+	var DSUtils = JSData.DSUtils,
+	    DSErrors = JSData.DSErrors;
+	var get = DSUtils.get,
+	    isString = DSUtils.isString,
+	    isNumber = DSUtils.isNumber,
+	    isObject = DSUtils.isObject,
+	    set = DSUtils.set,
+	    resolveId = DSUtils.resolveId;
 	
 	
 	var adapters = [{
@@ -296,9 +296,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	
 	    // Hook into the digest loop
+	    delete Object.observe; // These are depricated anyway.
+	    delete Array.observe; // These are depricated anyway.
 	    if (typeof Object.observe !== 'function' || typeof Array.observe !== 'function') {
-	      $rootScope.$watch(function () {
-	        return store.observe.Platform.performMicrotaskCheckpoint();
+	      // $rootScope.$watch(() => store.observe.Platform.performMicrotaskCheckpoint())
+	      $rootScope.$on('DS-update-store', function RayDSUpdateStore() {
+	        store.observe.Platform.performMicrotaskCheckpoint();
 	      });
 	    }
 	
@@ -338,7 +341,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	'use strict';
 	
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
@@ -354,12 +357,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	} catch (e) {}
 	
 	var DSUtils = JSData.DSUtils;
-	var deepMixIn = DSUtils.deepMixIn;
-	var removeCircular = DSUtils.removeCircular;
-	var copy = DSUtils.copy;
-	var makePath = DSUtils.makePath;
-	var isString = DSUtils.isString;
-	var isNumber = DSUtils.isNumber;
+	var deepMixIn = DSUtils.deepMixIn,
+	    removeCircular = DSUtils.removeCircular,
+	    copy = DSUtils.copy,
+	    makePath = DSUtils.makePath,
+	    isString = DSUtils.isString,
+	    isNumber = DSUtils.isNumber;
 	
 	
 	function isUndefined(value) {
@@ -440,8 +443,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	      }) : {});
 	
 	      DSUtils.forOwn(parents, function (parent, parentName) {
-	        var _this2 = this;
-	
 	        var item = void 0;
 	        var parentKey = parent.key;
 	        var parentField = parent.field;
@@ -466,14 +467,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	          }
 	
 	          if (parentId) {
-	            (function () {
-	              delete options.endpoint;
-	              var _options = {};
-	              DSUtils.forOwn(options, function (value, key) {
-	                _options[key] = value;
-	              });
-	              endpoint = DSUtils.makePath(_this2.getEndpoint(parentDef, parentId, DSUtils._(parentDef, _options)), parentId, endpoint);
-	            })();
+	            delete options.endpoint;
+	            var _options = {};
+	            DSUtils.forOwn(options, function (value, key) {
+	              _options[key] = value;
+	            });
+	            endpoint = DSUtils.makePath(this.getEndpoint(parentDef, parentId, DSUtils._(parentDef, _options)), parentId, endpoint);
 	          }
 	        }
 	      }, this);

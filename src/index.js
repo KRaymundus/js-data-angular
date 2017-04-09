@@ -210,8 +210,13 @@ class DSProvider {
       }
 
       // Hook into the digest loop
+      delete Object.observe;  // These are depricated anyway.
+      delete Array.observe;   // These are depricated anyway.
       if (typeof Object.observe !== 'function' || typeof Array.observe !== 'function') {
-        $rootScope.$watch(() => store.observe.Platform.performMicrotaskCheckpoint())
+        // $rootScope.$watch(() => store.observe.Platform.performMicrotaskCheckpoint())
+        $rootScope.$on('DS-update-store', function RayDSUpdateStore() {
+          store.observe.Platform.performMicrotaskCheckpoint();
+        });
       }
 
       return store
